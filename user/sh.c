@@ -75,7 +75,8 @@ runcmd(struct cmd *cmd)
     ecmd = (struct execcmd*)cmd;
     if(ecmd->argv[0] == 0)
       exit(1);
-    exec(ecmd->argv[0], ecmd->argv);
+    // exec系统调用根据指定的文件名找到可执行文件，并用它来取代调用进程的内容，换句话说，就是在调用进程内部执行一个可执行文件
+    exec(ecmd->argv[0], ecmd->argv);  // 只有在出错时才返回，其他时候加载的那个文件中就返回了
     fprintf(2, "exec %s failed\n", ecmd->argv[0]);
     break;
 
@@ -164,9 +165,9 @@ main(void)
         fprintf(2, "cannot cd %s\n", buf+3);
       continue;
     }
-    if(fork1() == 0)
-      runcmd(parsecmd(buf));
-    wait(0);
+    if(fork1() == 0)  // shell进程中新建一个子进程，判断PID，如果是0，进入该子进程
+      runcmd(parsecmd(buf));  // 子进程执行runcmd命令
+    wait(0);   // 父进程wait, 等待子进程退出
   }
   exit(0);
 }
